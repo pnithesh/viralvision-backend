@@ -71,26 +71,32 @@ router.post('/login', async (req, res) => {
     
     // Add debugging logs
     console.log('Login request received:', { email });
-
+    
     // Get sequelize instance and User model
     const sequelize = req.app.get('sequelize');
     const User = require('../models/User')(sequelize);
-
+    
     // Find user
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      console.log('User not found:', email); // ADD THIS
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-
+    console.log('User found:', user.email); // ADD THIS
+    
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('Invalid password for:', email); // ADD THIS
       return res.status(400).json({ message: 'Invalid email or password' });
     }
-
+    console.log('Password valid for:', email); // ADD THIS
+    
     // Create token
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
+    
+    console.log('Login successful, token created for user ID:', user.id); // ADD THIS
+    
     res.json({
       token,
       user: {
@@ -104,5 +110,4 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error: ' + error.message });
   }
 });
-
 module.exports = router;
