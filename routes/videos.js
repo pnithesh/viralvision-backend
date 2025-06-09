@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/auth');
 const { Sequelize, DataTypes } = require('sequelize');
 
 // Define Video model
+// Define Video model
 const defineVideoModel = (sequelize) => {
   const Video = sequelize.define('Video', {
     id: {
@@ -24,6 +25,11 @@ const defineVideoModel = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
       field: 'avatar_id'
+    },
+    avatar_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      field: 'avatar_name'
     },
     status: {
       type: DataTypes.STRING,
@@ -88,16 +94,19 @@ router.get('/:id', authMiddleware, async (req, res) => {
 
 // Create a new video
 router.post('/', authMiddleware, async (req, res) => {
+  console.log('Create video request received:', req.body);
+  console.log('User ID:', req.userId);
   try {
     const sequelize = req.app.get('sequelize');
     const Video = defineVideoModel(sequelize);
     
-    const { title, videoPath, avatarUrl, status } = req.body;
+    const { title, videoPath, avatarUrl, avatarName, status } = req.body;
     
     const video = await Video.create({
       title,
       video_uri: videoPath,
       avatar_id: avatarUrl,
+      avatar_name: avatarName || 'Virtual Influencer',
       status: status || 'draft',
       user_id: req.userId
     });
